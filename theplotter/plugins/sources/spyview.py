@@ -6,8 +6,8 @@ import theplotter.graph.nodes as nodes
 
 
 class SpyviewSource(nodes.Source):
-    def __init__(self, location):
-        super().__init__()
+    def __init__(self, location, **kwargs):
+        super().__init__(**kwargs)
         self.location = location
 
     def run(self):
