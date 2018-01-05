@@ -22,7 +22,7 @@ class Node():
         for source in self.datasources:
             source.play()
         if self.need_update:
-            print('run on ', self)
+            #print('run on ', self)
             self.run()
             for target in self.datatargets:
                 target.need_update = True

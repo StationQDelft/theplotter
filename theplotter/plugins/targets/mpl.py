@@ -23,7 +23,7 @@ class MPLWindow:
         def update():
             for row in self.viewports:
                 for viewport in row:
-                    viewport.mplplot.play()
+                    viewport.play()
             self.fig.canvas.draw()
         def on_key(event):
             if event.key == ' ':
@@ -42,6 +42,10 @@ class MPLViewport:
 
     def set_mplplot(self, mplplot):
         self.mplplot = mplplot
+
+    def play(self):
+        if self.mplplot is not None:
+            self.mplplot.play()
 
 
 class MPLPlot(nodes.Target):
@@ -68,9 +72,7 @@ class MPLPlot(nodes.Target):
         self.add_widget('rectangle_selector', RectangleSelector(self.viewport.ax, onselect, drawtype='box'))
 
     def add_polygon_selector(self, callback):
-        def onselect(event):
-            callback(event[0], event[1])
-        self.add_widget('polygon_selector', PolygonSelector(self.viewport.ax, onselect))
+        self.add_widget('polygon_selector', PolygonSelector(self.viewport.ax, callback))
 
 
 class MultiMPLTarget(nodes.Target):

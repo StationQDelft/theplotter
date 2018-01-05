@@ -56,15 +56,50 @@ class Average(nodes.Node):
 
         self.need_update = False
 
-
-class Interpolate(nodes.Node):
-    def __init__(self, method='linear', **kwargs):
+class STD(nodes.Node):
+    def __init__(self, axis, **kwargs):
         super().__init__(**kwargs)
-        self.method = method
+        self.axis = axis
 
     def run(self):
-        orig_grid = self.datasources[0].get_data()
+        data = self.datasources[0].get_data()
+        self.dataset = np.std(data, axis=self.axis)
+
+        self.need_update = False
+
+class Reshape(nodes.Node):
+    def __init__(self, new_shape, **kwargs):
+        super().__init__(**kwargs)
+        self.new_shape = new_shape
+
+    def run(self):
+        data = self.datasources[0].get_data()
+        self.dataset = np.reshape(data, self.new_shape, order='C')
+
+        self.need_update = False
+
+
+class Interpolate(nodes.Node):
+    def __init__(self, method='linear', dtype=np.float64, **kwargs):
+        super().__init__(**kwargs)
+        self.method = method
+        self.dtype = dtype
+
+    def run(self):
+        orig_grid = self.datasources[0].get_data().copy()
+        orig_grid_shape = orig_grid.shape
+        orig_grid = orig_grid.view(dtype=self.dtype).reshape(orig_grid_shape + (-1,), order='C')
+
+        d = orig_grid.shape[-1]
+
         orig_values = self.datasources[1].get_data()
-        new_grid = self.datasources[2].get_data()
-        self.dataset = interpolate.griddata(orig_grid, orig_values, new_grid, method=self.method)
+
+        new_grid = self.datasources[2].get_data().copy()
+        new_grid_shape = new_grid.shape
+        new_grid = new_grid.view(dtype=self.dtype).reshape(new_grid_shape + (-1,), order='C')
+
+        self.dataset = interpolate.griddata(orig_grid.reshape((-1, d), order='C'),
+                                            orig_values.reshape((-1,), order='C'),
+                                            new_grid.reshape((-1, d), order='C'), method=self.method)
+        self.dataset = self.dataset.reshape(new_grid_shape, order='C')
         self.need_update = False

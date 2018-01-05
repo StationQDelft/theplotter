@@ -25,6 +25,6 @@ class SpyviewSource(nodes.Source):
             if info['type'] == 'coordinate':
                 shape_list.append(int(info['size']))
         shape = tuple(shape_list)
-        self.dataset = np.loadtxt(self.location, dtype=np.dtype(dt_list)).reshape(shape, order='F')
+        self.dataset = np.loadtxt(self.location, dtype=np.dtype(dt_list)).reshape(shape, order='F').transpose()
 
         self.need_update = False
