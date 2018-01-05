@@ -63,17 +63,23 @@ class MPLPlot(nodes.Target):
         #self.add_widget('play', Button(self.ax, 'Play'))
         #self.widgets['play'].on_clicked(self.play)
 
-    def add_widget(self, name, widget):
-        self.widgets.update({name:widget})
+    def add_widget(self, name, constructor, *args, **kwargs):
+        self.widgets.update({name: [constructor(*args, **kwargs), constructor, args, kwargs]})
 
     def add_rectangle_selector(self, callback):
         def onselect(eclick, erelease):
             callback((eclick.xdata, eclick.ydata),(erelease.xdata, erelease.ydata))
-        self.add_widget('rectangle_selector', RectangleSelector(self.viewport.ax, onselect, drawtype='box'))
+        self.add_widget('rectangle_selector', RectangleSelector, self.viewport.ax, onselect, drawtype='box')
 
     def add_polygon_selector(self, callback):
-        self.add_widget('polygon_selector', PolygonSelector(self.viewport.ax, callback))
+        self.add_widget('polygon_selector', PolygonSelector, self.viewport.ax, callback)
 
+    def clear(self):
+        self.viewport.ax.cla()
+
+    def reset_widgets(self):
+        for name, w in self.widgets.items():
+            w[0] = w[1](*w[2], **w[3])
 
 class MultiMPLTarget(nodes.Target):
     def __init__(self, layout):
@@ -104,16 +110,18 @@ class pcolormesh(MPLPlot):
 
 
     def run(self):
-        self.viewport.ax.cla()
+        self.clear()
         self.viewport.ax.pcolormesh(self.datasources[0].get_data(),
                            self.datasources[1].get_data(),
                            self.datasources[2].get_data())
+        self.reset_widgets()
 
 class lineplot(MPLPlot):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def run(self):
-        self.viewport.ax.cla()
+        self.clear()
         self.viewport.ax.plot(self.datasources[0].get_data(),
                      self.datasources[1].get_data())
+        self.reset_widgets()
