@@ -1,3 +1,5 @@
+import numpy as np
+
 class Node():
     def __init__(self, datasources=None):
         super().__init__()
@@ -47,6 +49,9 @@ class Node():
     def __getitem__(self, item):
         return SliceTransformation(self, item)
 
+    def __add__(self, other):
+        return AddTransformation(datasources=[self, other])
+
 
 class Source(Node):
     def __init__(self, **kwargs):
@@ -73,6 +78,24 @@ class SliceTransformation(Node):
     def update_slice_operator(self, slice_operator):
         self.slice_operator = slice_operator
         self.need_update = True
+
+class AddTransformation(Node):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def run(self):
+        ds1 = self.datasources[0].get_data()
+        ds2 = self.datasources[1].get_data()
+        if ds1.dtype != ds2.dtype:
+            raise Exception("datasets have unequal dtype")
+        if ds1.shape != ds2.shape:
+            raise Exception("Datasets have unequal shape")
+        if len(ds1.dtype)==0:
+            self.dataset = ds1 + ds2
+        else:
+            self.dataset = np.zeros(ds1.shape, dtype=ds1.dtype)
+            for field in ds1.dtype.names:
+                self.dataset[field] = ds1[field] + ds2[field]
 
 
 
