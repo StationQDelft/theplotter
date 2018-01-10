@@ -114,7 +114,10 @@ class pcolormesh(MPLPlot):
         self.viewport.ax.pcolormesh(self.datasources[0].get_data(),
                            self.datasources[1].get_data(),
                            self.datasources[2].get_data())
+        self.viewport.ax.set_xlabel(self.datasources[0].get_name())
+        self.viewport.ax.set_ylabel(self.datasources[1].get_name())
         self.reset_widgets()
+
 
 class lineplot(MPLPlot):
     def __init__(self, **kwargs):
@@ -124,4 +127,6 @@ class lineplot(MPLPlot):
         self.clear()
         self.viewport.ax.plot(self.datasources[0].get_data(),
                      self.datasources[1].get_data())
+        self.viewport.ax.set_xlabel(self.datasources[0].get_name())
+        self.viewport.ax.set_ylabel(self.datasources[1].get_name())
         self.reset_widgets()

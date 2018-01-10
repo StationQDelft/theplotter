@@ -1,15 +1,19 @@
 import numpy as np
 
 class Node():
-    def __init__(self, datasources=None):
+    def __init__(self, datasources=None, name=''):
         super().__init__()
         self.dataset = None
+        self.name = name
+
         if datasources is None:
             self.datasources = []
         else:
             self.set_sources(datasources)
+        
         self.by_ref = []  # A bool per datasource to signal if the data is by_ref(True) or a copy (False)
         self.datatargets = []
+        
 
         self.need_update = True
 
@@ -31,6 +35,12 @@ class Node():
 
     def get_data(self):
         return self.dataset
+
+    def get_name(self):
+        if not self.name:
+            return self.__class__.__name__
+        else:
+            return self.name
 
     def set_sources(self, sources):
         self.datasources = sources
